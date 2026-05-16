@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Result</title>
+  </head>
+  <body style="text-align: center; font-family: Arial">
+    <h2>Deepfake Detection Result</h2>
+
+    <h1>{{ prediction }}</h1>
+    <h3>Confidence: {{ confidence }}%</h3>
+
+    <img
+      src="{{ url_for('static', filename='uploads/' + filename) }}"
+      width="300"
+    />
+
+    <br /><br />
+    <a href="/">Try Another</a>
+  </body>
+</html>
