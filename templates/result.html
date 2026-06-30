@@ -139,7 +139,14 @@ background:#0ea5e9;
 
 <body>
 
-<h1>DeepScan AI Analysis Report</h1>
+{% set is_video = total_frames > 1 %}
+<h1>
+   {% if is_video %}
+   DeepScan Video Analysis Report
+   {% else %}
+   DeepScan Image Analysis Report
+   {% endif %}
+   </h1>
 
 <div class="container">
 
@@ -148,12 +155,22 @@ background:#0ea5e9;
 <div class="card">
 
    <div class="badge">
-   Visual Analysis
+      {% if is_video %}
+      Video Analysis
+      {% else %}
+      Image Analysis
+      {% endif %}
    </div>
    
    {% if total_frames == 1 %}
    
-   <h3>Original Image</h3>
+   <h3>
+      {% if is_video %}
+      Uploaded Video
+      {% else %}
+      Original Image
+      {% endif %}
+      </h3>
    
    <img
    src="{{ url_for('static', filename='uploads/' + filename) }}"
@@ -262,7 +279,11 @@ style="width: {{ confidence }}%;">
 
 <div class="section">
 
-<h2>Image Metadata</h2>
+<h2>{% if is_video %}
+   Video Information
+   {% else %}
+   Image Metadata
+   {% endif %}</h2>
 
 <table>
 
@@ -331,7 +352,11 @@ style="width: {{ confidence }}%;">
 
 <div class="section">
 
-<h2>Image Quality</h2>
+<h2>{% if is_video %}
+   Video Quality
+   {% else %}
+   Image Quality
+   {% endif %}</h2>
 
 <ul>
 
@@ -401,13 +426,28 @@ style="width: {{ confidence }}%;">
 
 <a href="/" class="button">
 
+   {% if is_video %}
+Analyze Another Video
+{% else %}
 Analyze Another Image
+{% endif %}
 
 </a>
 
 </div>
 
 </div>
+<footer>
+
+   <b>DeepScan v1.0</b><br><br>
+   
+   Powered by TensorFlow • OpenCV • Flask
+   
+   <br><br>
+   
+   Developed by Tina, Samchita and Aayusha
+   
+   </footer>
 
 </body>
 
