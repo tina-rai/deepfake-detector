@@ -1,34 +1,74 @@
 import cv2
 import numpy as np
 
-def image_quality(path):
+def image_quality(image_path):
 
-    img = cv2.imread(path)
+    img = cv2.imread(image_path)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Blur detection
-    sharpness = cv2.Laplacian(gray, cv2.CV_64F).var()
+    # Sharpness
+    sharpness = round(cv2.Laplacian(gray, cv2.CV_64F).var(),2)
 
-    if sharpness > 150:
-        sharp = "High"
-    elif sharpness > 60:
-        sharp = "Medium"
-    else:
-        sharp = "Low"
+    # Brightness
+    brightness = round(np.mean(gray),2)
 
-    brightness = np.mean(gray)
+    # Contrast
+    contrast = round(np.std(gray),2)
 
-    if brightness < 60:
-        light = "Dark"
+    # Blur score
+    blur = "Low"
+
+    if sharpness < 80:
+        blur = "High"
+    elif sharpness < 150:
+        blur = "Medium"
+
+    # Exposure
+
+    if brightness < 70:
+        exposure = "Under Exposed"
 
     elif brightness > 180:
-        light = "Over Exposed"
+        exposure = "Over Exposed"
 
     else:
-        light = "Normal"
+        exposure = "Normal"
+
+    # Overall Quality
+
+    score = 100
+
+    if sharpness < 120:
+        score -= 20
+
+    if contrast < 40:
+        score -= 20
+
+    if brightness < 60 or brightness > 190:
+        score -= 20
+
+    if score >= 80:
+        overall = "Excellent"
+
+    elif score >= 60:
+        overall = "Good"
+
+    else:
+        overall = "Poor"
 
     return {
-        "sharpness": sharp,
-        "brightness": light
+
+        "sharpness": sharpness,
+
+        "brightness": brightness,
+
+        "contrast": contrast,
+
+        "blur": blur,
+
+        "exposure": exposure,
+
+        "overall": overall
+
     }

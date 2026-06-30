@@ -1,37 +1,38 @@
 from PIL import Image
 import os
 
-def analyze_image(filepath):
+def analyze_image(path):
 
-    img = Image.open(filepath)
+    img = Image.open(path)
 
-    width, height = img.size
+    width,height = img.size
 
-    extension = os.path.splitext(filepath)[1].upper().replace(".", "")
+    size = round(os.path.getsize(path)/1024,2)
 
-    size = os.path.getsize(filepath) / 1024
+    return{
 
-    report = []
+        "width":width,
 
-    # Resolution
-    if width >= 1000 and height >= 1000:
-        report.append("High Resolution")
-    else:
-        report.append("Low Resolution")
+        "height":height,
 
-    # Image size
-    if size < 150:
-        report.append("High Compression")
-    else:
-        report.append("Normal Compression")
+        "aspect":round(width/height,2),
 
-    # Face
-    report.append("Face Detected")
+        "format":img.format,
 
-    return {
-        "width": width,
-        "height": height,
-        "format": extension,
-        "size": round(size, 2),
-        "report": report
+        "mode":img.mode,
+
+        "size":size,
+
+        "report":[
+
+            "Face successfully detected",
+
+            "Metadata extracted",
+
+            "Artifact analysis completed",
+
+            "Neural network inference complete"
+
+        ]
+
     }

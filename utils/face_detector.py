@@ -1,4 +1,5 @@
 import cv2
+import os
 
 # Load OpenCV's built-in face detector
 face_cascade = cv2.CascadeClassifier(
@@ -33,4 +34,42 @@ def crop_face(image_path):
     w = min(img.shape[1] - x, w + pad * 2)
     h = min(img.shape[0] - y, h + pad * 2)
 
-    return img[y:y+h, x:x+w]
+    face = img[y:y+h, x:x+w]
+
+    # Save cropped face
+    save_path = image_path.replace(
+        "uploads",
+        "results"
+    ).rsplit(".", 1)[0] + "_face.jpg"
+
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    cv2.imwrite(save_path, face)
+
+    return face
+
+def crop_face_from_frame(frame):
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    faces = face_cascade.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(60,60)
+    )
+
+    if len(faces) == 0:
+        return None
+
+    x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
+
+    pad = 20
+
+    x = max(0, x-pad)
+    y = max(0, y-pad)
+
+    w = min(frame.shape[1]-x, w+pad*2)
+    h = min(frame.shape[0]-y, h+pad*2)
+
+    return frame[y:y+h, x:x+w]    
