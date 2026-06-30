@@ -2,9 +2,15 @@ from flask import Flask, render_template, request
 import os
 from PIL import Image
 import numpy as np
+from utils.face_detector import crop_face
+import cv2
+import time
+
+from utils.forensic import analyze_image
 
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
+from utils.image_quality import image_quality
 
 app = Flask(__name__)
 
@@ -17,8 +23,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def predict_image(filepath):
-    img = image.load_img(filepath, target_size=(224, 224))
-    img_array = image.img_to_array(img) / 255.0
+    face = crop_face(filepath)
+
+    if face is None:
+        raise Exception("No face detected in the uploaded image.")
+
+    face = cv2.resize(face, (224, 224))
+    img_array = face.astype("float32") / 255.0
     img_array = np.expand_dims(img_array, axis=0)
 
     prediction = model.predict(img_array)[0][0]
@@ -39,6 +50,7 @@ def predict_image(filepath):
 @app.route('/')
 def home():
     return render_template('index.html')
+
 @app.route('/upload', methods=['POST'])
 def upload():
 
@@ -53,17 +65,31 @@ def upload():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(filepath)
 
-    #  DEBUG HERE
     print(file.filename)
     print(filepath)
 
-    prediction, confidence = predict_image(filepath)
+    try:
+
+        start = time.time()
+
+        prediction, confidence = predict_image(filepath)
+
+        info = analyze_image(filepath)
+        quality = image_quality(filepath)
+
+        processing_time = round(time.time() - start, 2)
+
+    except Exception as e:
+        return f"Prediction Error: {str(e)}"
 
     return render_template(
-        'result.html',
-        prediction=prediction,
-        confidence=round(confidence * 100, 2),
-        filename=file.filename
+      "result.html",
+       prediction=prediction,
+       confidence=round(confidence * 100, 2),
+       filename=file.filename,
+       info=info,
+       quality=quality,
+       processing_time=processing_time
     )
 if __name__ == '__main__':
     app.run(debug=True)
